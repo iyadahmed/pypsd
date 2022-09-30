@@ -1,5 +1,6 @@
 # https://www.adobe.com/devnet-apps/photoshop/fileformatashtml/
 
+from dataclasses import dataclass
 from enum import IntEnum
 from io import BytesIO
 from typing import BinaryIO
@@ -156,18 +157,43 @@ def is_plugin_resource(resource_id: int):
     return 4000 <= resource_id <= 4999
 
 
-def read_pascal_string(file: BinaryIO):
-    length = max(file.read(1)[0], 1)
+def read_uint32(buffer: BinaryIO):
+    return int.from_bytes(buffer.read(4), "big", signed=False)
+
+
+def read_int16(buffer: BinaryIO):
+    return int.from_bytes(buffer.read(2), "big", signed=True)
+
+
+def read_uint16(buffer: BinaryIO):
+    return int.from_bytes(buffer.read(2), "big", signed=False)
+
+
+@dataclass
+class Rectangle:
+    top: int
+    left: int
+    bottom: int
+    right: int
+
+
+def read_rectangle_uint32(buffer: BinaryIO):
+    top = read_uint32(buffer)
+    left = read_uint32(buffer)
+    bottom = read_uint32(buffer)
+    right = read_uint32(buffer)
+    return Rectangle(top, left, bottom, right)
+
+
+def read_pascal_string(buffer: BinaryIO):
+    length = max(buffer.read(1)[0], 1)
     # TODO: investigate the even size padding
-    return file.read(length)
+    return buffer.read(length)
 
 
-def read_unicode_string(file: BinaryIO):
-    length = int.from_bytes(file.read(4), "big", signed=False)
-    string = file.read(length * 2).decode("utf-8")
-    n0, n1 = file.read(2)  # Read two byte null at end of string
-    assert (n0 == 0) and (n1 == 0)
-    return string
+def read_unicode_string(buffer: BinaryIO):
+    length = int.from_bytes(buffer.read(4), "big", signed=False)
+    return buffer.read(length * 2).decode("utf-16")
 
 
 with open("/home/iyad/Desktop/placeholders-with-frames_ungrouped_color.psd", "rb") as file:
@@ -247,6 +273,34 @@ with open("/home/iyad/Desktop/placeholders-with-frames_ungrouped_color.psd", "rb
                 descriptor_version = int.from_bytes(
                     image_resource_data_buf.read(4), "big", signed=False
                 )
+                assert descriptor_version == 16
+
+                # Descriptor
+
+                name_from_class_id = read_unicode_string(image_resource_data_buf)
+                class_id_length = int.from_bytes(
+                    image_resource_data_buf.read(4), "big", signed=False
+                )
+                if class_id_length == 0:
+                    class_id = image_resource_data_buf.read(4)
+                else:
+                    class_id_string = read_unicode_string(image_resource_data_buf)
+
+                # num_descriptor_items = int.from_bytes(
+                #     image_resource_data_buf.read(4), "big", signed=False
+                # )
+                # print(image_resource_data_buf.read(10))
+                # for _ in range(num_descriptor_items):
+                #     key_length = int.from_bytes(
+                #         image_resource_data_buf.read(4), "big", signed=False
+                #     )
+                #     if key_length == 0:
+                #         key = image_resource_data_buf.read(4)
+                #     else:
+                #         # key_string = read_unicode_string(image_resource_data_buf)
+                #         key_string = read_pascal_string(image_resource_data_buf)
+                #         print(key_string)
+
             elif slices_version == 6:
                 # TODO
                 raise NotImplementedError
@@ -254,3 +308,44 @@ with open("/home/iyad/Desktop/placeholders-with-frames_ungrouped_color.psd", "rb
                 raise RuntimeError(
                     f"Invalid PSD, slices version should be 6, 7 or 8, found {slices_version} instead."
                 )
+
+    # Layer and Mask Information Section
+
+    ## Layer info
+    layer_and_mask_section_length = read_uint32(file)
+    layer_and_mask_section_buf = BytesIO(file.read(layer_and_mask_section_length))
+    layer_info_length = read_uint32(layer_and_mask_section_buf)
+    assert (layer_info_length % 2) == 0
+    layer_count = read_int16(layer_and_mask_section_buf)
+
+    for _ in range(layer_count):
+        ## Layer records
+        layer_rect = read_rectangle_uint32(layer_and_mask_section_buf)
+        layer_channels_count = read_uint16(layer_and_mask_section_buf)
+
+        for _ in range(layer_channels_count):
+            channel_id = read_int16(layer_and_mask_section_buf)
+            channel_data_length = read_uint32(layer_and_mask_section_buf)
+        
+        blend_mode_signature = layer_and_mask_section_buf.read(4)
+        assert blend_mode_signature == b"8BIM"
+
+        blend_mode_key = layer_and_mask_section_buf.read(4)
+        opacity = layer_and_mask_section_buf.read(1)
+        clipping = layer_and_mask_section_buf.read(1)
+        flags = layer_and_mask_section_buf.read(1)
+
+        _filler = layer_and_mask_section_buf.read(1)
+        assert _filler[0] == 0
+
+        extra_data_length = read_uint32(layer_and_mask_section_buf)
+        extra_data_buf = BytesIO(layer_and_mask_section_buf.read(extra_data_length))
+        
+        ### Layer mask / adjustment layer data
+        size_of_data = read_uint32(extra_data_buf)
+        if size_of_data != 0:
+            rect = read_rectangle_uint32(extra_data_buf)
+            default_color = extra_data_buf.read(1)
+            flags = extra_data_buf.read(1)[0]
+            if flags & (1 << 4):
+                mask_parameters = extra_data_buf.read(1)
