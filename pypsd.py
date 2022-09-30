@@ -146,8 +146,6 @@ class ResourceID(IntEnum):
 
 INDEXED_COLOR_DATA_LENGTH = 768
 
-indexed_color_table = None
-
 
 def is_path_resource(resource_id: int):
     return 2000 <= resource_id <= 2997
@@ -167,6 +165,22 @@ def read_int16(buffer: BinaryIO):
 
 def read_uint16(buffer: BinaryIO):
     return int.from_bytes(buffer.read(2), "big", signed=False)
+
+
+@dataclass
+class Header:
+    # Width and height of the image in pixels
+    # NOTE: PSD max width or height is 30,000, while PSB format spec supports up to 300,000
+    width: int
+    height: int
+
+    num_channels: int
+    color_mode: ColorMode
+
+
+@dataclass
+class ResourceBlock:
+    pass
 
 
 @dataclass
@@ -196,156 +210,173 @@ def read_unicode_string(buffer: BinaryIO):
     return buffer.read(length * 2).decode("utf-16")
 
 
-with open("/home/iyad/Desktop/placeholders-with-frames_ungrouped_color.psd", "rb") as file:
-
-    # Header
-
-    signature = file.read(4)
+def _read_header(buffer: BinaryIO):
+    # TODO: move asserts to dataclass __post_init__?
+    signature = buffer.read(4)
     assert signature == b"8BPS"
 
-    version = int.from_bytes(file.read(2), "big", signed=False)
+    version = read_uint16(buffer)
     assert version == 1
 
-    _reserved = int.from_bytes(file.read(6), "big", signed=False)
-    assert _reserved == 0
+    _reserved = buffer.read(6)
+    assert all(c == 0 for c in _reserved)
 
-    channels_num = int.from_bytes(file.read(2), "big", signed=False)
-    assert 1 <= channels_num <= 56
+    num_channels = read_int16(buffer)
+    assert 1 <= num_channels <= 56
 
-    image_height_pixels = int.from_bytes(file.read(4), "big", signed=False)
-    assert (
-        image_height_pixels <= 30_000
-    )  # NOTE: PSD max is 30,000, while PSB format spec supports up to 300,000
+    height = read_uint32(buffer)
+    assert height <= 30_000
 
-    image_width_pixels = int.from_bytes(file.read(4), "big", signed=False)
-    assert (
-        image_width_pixels <= 30_000
-    )  # NOTE: PSD max is 30,000, while PSB format spec supports up to 300,000
+    width = read_uint32(buffer)
+    assert width <= 30_000
 
-    depth = int.from_bytes(file.read(2), "big", signed=False)
+    depth = read_uint16(buffer)
     assert depth in (1, 8, 16, 32)
 
-    color_mode = ColorMode(int.from_bytes(file.read(2), "big", signed=False))
+    color_mode = ColorMode(read_uint16(buffer))
 
     # Color Mode Data Section
 
-    color_data_length = int.from_bytes(file.read(4), "big", signed=False)
+    color_data_length = read_uint32(buffer)
     if color_mode == ColorMode.Indexed:
         assert color_data_length == INDEXED_COLOR_DATA_LENGTH
-        indexed_color_table = file.read(INDEXED_COLOR_DATA_LENGTH)
-        # TODO: de-interleave indexed color table
+        indexed_color_table = buffer.read(INDEXED_COLOR_DATA_LENGTH)
+        # TODO: de-interleave and store indexed color table
         # it seems that color table is 256 RGB, non-interleaved, so 256 red values, followed by 256 green, followed by 256 blue bytes
     elif color_mode == ColorMode.Duotone:
         # undocumented
-        file.read(color_data_length)
+        buffer.read(color_data_length)
     else:
         assert color_data_length == 0
 
-    # Image Resources Section
+    return Header(width, height, num_channels, color_mode)
 
-    image_resources_section_length = int.from_bytes(file.read(4), "big", signed=False)
-    image_resources_section_buf = BytesIO(file.read(image_resources_section_length))
 
-    ## Image Resource Block
+def _read_image_resource_block(buffer: BinaryIO):
+    signature = buffer.read(4)
+    if len(signature) == 0:
+        return
+    assert signature == b"8BIM"
+    identifier = ResourceID(read_uint16(buffer))
+    name = read_pascal_string(buffer)
+    data_length = read_uint32(buffer)
+
+    # TODO: double check this logic
+    if (data_length % 2) == 1:
+        data_length += 1
+
+    data_buf = BytesIO(buffer.read(data_length))
+    if identifier == ResourceID.PS6_SLICES:
+        slices_version = read_uint32(data_buf)
+        if slices_version in (7, 8):
+            descriptor_version = read_uint32(data_buf)
+        elif slices_version == 6:
+            raise NotImplementedError
+        else:
+            raise RuntimeError(
+                f"Invalid PSD, slices version should be 6, 7 or 8, found {slices_version} instead."
+            )
+
+    return ResourceBlock()
+
+
+def _read_image_resources_section(buffer: BinaryIO):
+    data_length = read_uint32(buffer)
+    data_buf = BytesIO(buffer.read(data_length))
+
     while True:
-        image_resource_signature = image_resources_section_buf.read(4)
-        if len(image_resource_signature) == 0:
+        block = _read_image_resource_block(data_buf)
+        if block is None:
             break
 
-        assert image_resource_signature == b"8BIM"
-        image_resource_id = ResourceID(
-            int.from_bytes(image_resources_section_buf.read(2), "big", signed=False)
-        )
-        image_resource_name = read_pascal_string(image_resources_section_buf)
-        image_resource_data_length = int.from_bytes(
-            image_resources_section_buf.read(4), "big", signed=False
-        )
-        # Data is padded to even length
-        if (image_resource_data_length % 2) == 1:
-            image_resource_data_length += 1
 
-        image_resource_data = image_resources_section_buf.read(image_resource_data_length)
-        image_resource_data_buf = BytesIO(image_resource_data)
+def _read_layer_mask_adjustments_data(buffer: BinaryIO):
+    size = read_uint32(buffer)
+    if size == 0:
+        return
 
-        if image_resource_id == ResourceID.PS6_SLICES:
-            slices_version = int.from_bytes(image_resource_data_buf.read(4), "big", signed=False)
-            if slices_version in (7, 8):
-                descriptor_version = int.from_bytes(
-                    image_resource_data_buf.read(4), "big", signed=False
-                )
-                assert descriptor_version == 16
+    data_buf = BytesIO(buffer.read(size))
 
-                # Descriptor
+    rect = read_rectangle_uint32(data_buf)
+    default_color = data_buf.read(1)[0]
+    flags = data_buf.read(1)[0]
+    if flags & (1 << 4):
+        mask_parameters = data_buf.read(1)[0]
 
-                name_from_class_id = read_unicode_string(image_resource_data_buf)
-                class_id_length = int.from_bytes(
-                    image_resource_data_buf.read(4), "big", signed=False
-                )
-                if class_id_length == 0:
-                    class_id = image_resource_data_buf.read(4)
-                else:
-                    class_id_string = read_unicode_string(image_resource_data_buf)
+    if size == 20:
+        _padding = data_buf.read(2)
+    else:
+        real_flags = data_buf.read(1)[0]
+        real_user_mask_background = data_buf.read(1)[0]
+        _rect = read_rectangle_uint32(data_buf)
 
-                # num_descriptor_items = int.from_bytes(
-                #     image_resource_data_buf.read(4), "big", signed=False
-                # )
-                # print(image_resource_data_buf.read(10))
-                # for _ in range(num_descriptor_items):
-                #     key_length = int.from_bytes(
-                #         image_resource_data_buf.read(4), "big", signed=False
-                #     )
-                #     if key_length == 0:
-                #         key = image_resource_data_buf.read(4)
-                #     else:
-                #         # key_string = read_unicode_string(image_resource_data_buf)
-                #         key_string = read_pascal_string(image_resource_data_buf)
-                #         print(key_string)
 
-            elif slices_version == 6:
-                # TODO
-                raise NotImplementedError
-            else:
-                raise RuntimeError(
-                    f"Invalid PSD, slices version should be 6, 7 or 8, found {slices_version} instead."
-                )
+def _read_layer_blending_ranges_data(buffer: BinaryIO, channels_count: int):
+    data_length = read_uint32(buffer)
+    data_buf = BytesIO(buffer.read(data_length))
 
-    # Layer and Mask Information Section
+    composite_gray_blend_source = data_buf.read(4)
+    composite_gray_blend_destination_range = data_buf.read(4)
+    for _ in range(channels_count):
+        nth_channel_source_range = data_buf.read(4)
+        nth_channel_destination_range = data_buf.read(4)
 
-    ## Layer info
-    layer_and_mask_section_length = read_uint32(file)
-    layer_and_mask_section_buf = BytesIO(file.read(layer_and_mask_section_length))
-    layer_info_length = read_uint32(layer_and_mask_section_buf)
-    assert (layer_info_length % 2) == 0
-    layer_count = read_int16(layer_and_mask_section_buf)
+    assert len(data_buf.read()) == 0
+
+
+def _read_layer_records(buffer: BinaryIO):
+    rect = read_rectangle_uint32(buffer)
+    channels_count = read_uint16(buffer)
+
+    for _ in range(channels_count):
+        channel_id = read_int16(buffer)
+        channel_data_length = read_uint32(buffer)
+
+    blend_mode_signature = buffer.read(4)
+    assert blend_mode_signature == b"8BIM"
+
+    blend_mode_key = buffer.read(4)
+    opacity = buffer.read(1)[0]
+    clipping = buffer.read(1)[0]
+    flags = buffer.read(1)[0]
+
+    _filler = buffer.read(1)[0]
+    assert _filler == 0
+
+    extra_data_length = read_uint32(buffer)
+    extra_data_buf = BytesIO(buffer.read(extra_data_length))
+
+    # _read_layer_mask_adjustments_data(extra_data_buf)
+    # _read_layer_blending_ranges_data(extra_data_buf, channels_count)
+    # layer_name = read_pascal_string(extra_data_buf)
+
+
+def _read_layer_info(buffer: BinaryIO):
+    data_length = read_uint32(buffer)
+    assert (data_length % 2) == 0
+
+    data_buf = BytesIO(buffer.read(data_length))
+
+    layer_count = read_int16(data_buf)
 
     for _ in range(layer_count):
-        ## Layer records
-        layer_rect = read_rectangle_uint32(layer_and_mask_section_buf)
-        layer_channels_count = read_uint16(layer_and_mask_section_buf)
+        _read_layer_records(data_buf)
 
-        for _ in range(layer_channels_count):
-            channel_id = read_int16(layer_and_mask_section_buf)
-            channel_data_length = read_uint32(layer_and_mask_section_buf)
-        
-        blend_mode_signature = layer_and_mask_section_buf.read(4)
-        assert blend_mode_signature == b"8BIM"
 
-        blend_mode_key = layer_and_mask_section_buf.read(4)
-        opacity = layer_and_mask_section_buf.read(1)
-        clipping = layer_and_mask_section_buf.read(1)
-        flags = layer_and_mask_section_buf.read(1)
+def _read_layer_and_mask_info_section(buffer: BinaryIO):
+    data_length = read_uint32(buffer)
+    data_buf = BytesIO(buffer.read(data_length))
 
-        _filler = layer_and_mask_section_buf.read(1)
-        assert _filler[0] == 0
+    _read_layer_info(data_buf)
 
-        extra_data_length = read_uint32(layer_and_mask_section_buf)
-        extra_data_buf = BytesIO(layer_and_mask_section_buf.read(extra_data_length))
-        
-        ### Layer mask / adjustment layer data
-        size_of_data = read_uint32(extra_data_buf)
-        if size_of_data != 0:
-            rect = read_rectangle_uint32(extra_data_buf)
-            default_color = extra_data_buf.read(1)
-            flags = extra_data_buf.read(1)[0]
-            if flags & (1 << 4):
-                mask_parameters = extra_data_buf.read(1)
+
+def main():
+    with open("/home/iyad/Desktop/placeholders-with-frames_ungrouped_color.psd", "rb") as file:
+
+        # Header
+        header = _read_header(file)
+        _read_image_resources_section(file)
+        _read_layer_and_mask_info_section(file)
+
+
+main()
