@@ -7,7 +7,9 @@ class ResourceID(IntEnum):
     MACOSX_PAGE_FORMAT_INFO = 1002  # Obsolete No longer read by Photoshop
     PS2_INDEXED_COLOR_TABLE = 1003  # Obsolete Photoshop 2 only
     RESOLUTION_INFO = 1005
-    ALPHA_CHANNEL_NAMES = 1006  # Names of the alpha channels as a series of Pascal strings.
+    ALPHA_CHANNEL_NAMES = (
+        1006  # Names of the alpha channels as a series of Pascal strings.
+    )
     DISPLAY_INFO_1077 = 1007  # Obsolete
     CAPTION = 1008  # Caption as Pascal string
 
@@ -25,7 +27,9 @@ class ResourceID(IntEnum):
     COLOR_TRANSFER_FUNCTIONS = 1016
     DUOTONE_TRANSFER_FUNCTIONS = 1017
     DUOTONE_IMAGE_INFORMATION = 1018
-    DOT_RANGE = 1019  # Two bytes for the effective black and white values for the dot range
+    DOT_RANGE = (
+        1019  # Two bytes for the effective black and white values for the dot range
+    )
     UNNAMED1 = 1020  # Obsolete
     EPS_OPTIONS = 1021
 

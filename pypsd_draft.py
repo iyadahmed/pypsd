@@ -4,10 +4,6 @@ from dataclasses import asdict, dataclass
 from enum import IntEnum
 from io import BytesIO
 from typing import BinaryIO, List
-import json
-
-
-
 
 
 class CompressionType(IntEnum):
@@ -149,7 +145,13 @@ def _read_layer_records(buffer: BinaryIO):
     # assert len(extra_data_buf.read()) == 0
 
     return LayerRecord(
-        rect, channels_count, channel_info, blend_mode_key, opacity, clipping_type, layer_name
+        rect,
+        channels_count,
+        channel_info,
+        blend_mode_key,
+        opacity,
+        clipping_type,
+        layer_name,
     )
 
 
