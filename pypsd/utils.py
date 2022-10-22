@@ -54,7 +54,7 @@ def read_unicode_string(buffer: BinaryIO):
     length = read_uint32(buffer)
     string_raw = buffer.read(length * 2)
     assert len(string_raw) == length * 2
-    return string_raw.decode("utf-16")
+    return string_raw.decode("utf-16-be")
 
 
 def is_path_resource(resource_id: int):
