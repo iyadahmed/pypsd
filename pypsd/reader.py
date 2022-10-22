@@ -1,6 +1,10 @@
-from .resource_blocks import iter_resource_blocks
-from .header import _read_header
+from io import BytesIO
+
 from .color_mode import _read_color_mode_data
+from .header import _read_header
+from .resource_blocks import iter_resource_blocks
+from .resource_ids import ResourceID
+from .slices import read_slices
 
 
 def read_psd(filepath: str):
@@ -11,4 +15,6 @@ def read_psd(filepath: str):
         _read_color_mode_data(file, header.color_mode)
 
         for rblock in iter_resource_blocks(file):
-            print(rblock.rid)
+            buf = BytesIO(rblock.data)
+            if rblock.rid == ResourceID.PS6_SLICES:
+                read_slices(buf)
