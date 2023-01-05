@@ -1,4 +1,2 @@
-*.psd
-.vscode/
-env/
-__pycache__/
+/venv/
+/.idea/
