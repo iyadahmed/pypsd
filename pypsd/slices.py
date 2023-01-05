@@ -55,6 +55,11 @@ def read_list_structure(buf: BinaryIO):
         read_descriptor_structure_inner(buf, ostype_key)
 
 
+def read_enumerated_descriptor(buf: BinaryIO):
+    enum_type = read_4_or_string(buf)
+    enum = read_4_or_string(buf)
+
+
 def read_descriptor_structure_inner(buf: BinaryIO, ostype_key: DescriptorOSTypeKey):
     if ostype_key == DescriptorOSTypeKey.STRING:
         read_unicode_string(buf)
@@ -64,6 +69,10 @@ def read_descriptor_structure_inner(buf: BinaryIO, ostype_key: DescriptorOSTypeK
         read_uint32(buf)
     elif ostype_key == DescriptorOSTypeKey.LIST:
         read_list_structure(buf)
+    elif ostype_key == DescriptorOSTypeKey.ENUM:
+        read_enumerated_descriptor(buf)
+    elif ostype_key == DescriptorOSTypeKey.BOOL:
+        read_uchar(buf)
     else:
         raise NotImplementedError(ostype_key)
 
