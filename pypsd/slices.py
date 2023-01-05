@@ -1,7 +1,7 @@
 from typing import BinaryIO
 from enum import Enum
 
-from .utils import read_uint32, read_unicode_string
+from .utils import read_uint32, read_unicode_string, read_rectangle_uint32, read_uchar
 
 
 def read_4_or_string(buf: BinaryIO):
@@ -86,11 +86,54 @@ def read_slices_version_7_8(buf: BinaryIO):
     read_descriptor_structure(buf)
 
 
+def read_slices_resource_block(buf: BinaryIO):
+    slice_id = read_uint32(buf)
+    group_id = read_uint32(buf)
+    origin = read_uint32(buf)
+    if origin == 1:
+        associated_layer_id = read_uint32(buf)
+    name = read_unicode_string(buf)
+    slice_type = read_uint32(buf)
+
+    left = read_uint32(buf)
+    top = read_uint32(buf)
+    right = read_uint32(buf)
+    bottom = read_uint32(buf)
+
+    url = read_unicode_string(buf)
+    target = read_unicode_string(buf)
+    message = read_unicode_string(buf)
+    alt_tag = read_unicode_string(buf)
+
+    is_html_cell_text = bool(read_uchar(buf))
+    cell_text = read_unicode_string(buf)
+    horizontal_alignment = read_uint32(buf)
+    vertical_alignment = read_uint32(buf)
+
+    alpha = read_uchar(buf)
+    red = read_uchar(buf)
+    green = read_uchar(buf)
+    blue = read_uchar(buf)
+
+    descriptor_version = read_uint32(buf)
+    assert descriptor_version == 16
+
+    read_descriptor_structure(buf)
+
+
+def read_slices_version_6(buf: BinaryIO):
+    read_rectangle_uint32(buf)
+    slices_group_name = read_unicode_string(buf)
+    num_slices = read_uint32(buf)
+    for _ in range(num_slices):
+        read_slices_resource_block(buf)
+
+
 def read_slices(buf: BinaryIO):
     version = read_uint32(buf)
     if version in (7, 8):
         read_slices_version_7_8(buf)
     elif version == 6:
-        raise NotImplementedError
+        read_slices_version_6(buf)
     else:
         raise RuntimeError("Invalid slices version")
