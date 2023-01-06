@@ -1,5 +1,11 @@
 from dataclasses import dataclass
 from typing import BinaryIO
+from struct import Struct
+
+float_reader = Struct(">f")
+double_reader = Struct(">d")
+# "fixed number (2 bytes real, 2 bytes fraction)"
+fixed_point_number_reader = Struct(">hh")
 
 
 @dataclass
@@ -8,6 +14,24 @@ class Rectangle:
     left: int
     bottom: int
     right: int
+
+
+def read_float(buffer: BinaryIO):
+    data = buffer.read(4)
+    assert len(data) == 4
+    return float_reader.unpack(data)[0]
+
+
+def read_double(buffer: BinaryIO):
+    data = buffer.read(8)
+    assert len(data) == 8
+    return double_reader.unpack(data)[0]
+
+
+def read_fixed_point_number(buffer: BinaryIO):
+    data = buffer.read(4)
+    assert len(data) == 4
+    return fixed_point_number_reader.unpack(data)
 
 
 def read_uint32(buffer: BinaryIO):
@@ -55,11 +79,3 @@ def read_unicode_string(buffer: BinaryIO):
     string_raw = buffer.read(length * 2)
     assert len(string_raw) == length * 2
     return string_raw.decode("utf-16-be")
-
-
-def is_path_resource(resource_id: int):
-    return 2000 <= resource_id <= 2997
-
-
-def is_plugin_resource(resource_id: int):
-    return 4000 <= resource_id <= 4999

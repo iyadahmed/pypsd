@@ -1,7 +1,7 @@
 from typing import BinaryIO
 from enum import Enum
 
-from .utils import read_uint32, read_unicode_string, read_rectangle_uint32, read_uchar
+from .utils import read_uint32, read_unicode_string, read_rectangle_uint32, read_uchar, read_double
 
 
 def read_4_or_string(buf: BinaryIO):
@@ -41,6 +41,15 @@ class ReferenceOSTypeKey(Enum):
     NAME = b"name"
 
 
+class UnitFloat(Enum):
+    ANGLE = b"#Ang"
+    DENSITY_PER_INCH = b"#Rsl"
+    DENSITY_72PPI = b"#Rlt"
+    NONE = b"#Nne"
+    PERCENT = b"#Prc"
+    PIXELS = b"#Pxl"
+
+
 def read_reference_structure(buf: BinaryIO):
     num_items = read_uint32(buf)
     for _ in range(num_items):
@@ -60,6 +69,11 @@ def read_enumerated_descriptor(buf: BinaryIO):
     enum = read_4_or_string(buf)
 
 
+def read_unit_float(buf: BinaryIO):
+    unit = UnitFloat(buf.read(4))
+    value = read_double(buf)
+
+
 def read_descriptor_structure_inner(buf: BinaryIO, ostype_key: DescriptorOSTypeKey):
     if ostype_key == DescriptorOSTypeKey.STRING:
         read_unicode_string(buf)
@@ -73,6 +87,10 @@ def read_descriptor_structure_inner(buf: BinaryIO, ostype_key: DescriptorOSTypeK
         read_enumerated_descriptor(buf)
     elif ostype_key == DescriptorOSTypeKey.BOOL:
         read_uchar(buf)
+    elif ostype_key == DescriptorOSTypeKey.DOUBLE:
+        read_double(buf)
+    elif ostype_key == DescriptorOSTypeKey.UNIT_FLOAT:
+        read_unit_float(buf)
     else:
         raise NotImplementedError(ostype_key)
 
