@@ -1,7 +1,7 @@
 from typing import BinaryIO
 from enum import IntEnum
 
-from .utils import read_uint16, read_float
+from pypsd.utils import read_uint16, read_float
 
 
 class PrintScaleStyle(IntEnum):

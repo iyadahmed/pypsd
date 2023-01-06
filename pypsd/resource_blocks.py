@@ -2,9 +2,9 @@ from dataclasses import dataclass
 from typing import BinaryIO
 from io import BytesIO
 
-from .utils import read_uint32, read_uint16, read_pascal_string
-from .resource_ids import ResourceID, is_path_resource, is_plugin_resource
-from .path import read_path_resource_block
+from pypsd.utils import read_uint32, read_uint16, read_pascal_string
+from pypsd.resource_ids import ResourceID, is_path_resource, is_plugin_resource
+from pypsd.path import read_path_resource_block
 
 
 @dataclass

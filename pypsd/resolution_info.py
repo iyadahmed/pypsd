@@ -1,7 +1,7 @@
 from enum import IntEnum
 from typing import BinaryIO
 
-from .utils import read_fixed_point_number, read_int16
+from pypsd.utils import read_fixed_point_number, read_int16
 
 
 class ResUnit(IntEnum):

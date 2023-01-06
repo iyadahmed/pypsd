@@ -2,7 +2,7 @@ from enum import IntEnum
 from io import SEEK_SET
 from typing import BinaryIO
 
-from .utils import read_uint16, read_uint32
+from pypsd.utils import read_uint16, read_uint32
 
 
 class PathDataRecordType(IntEnum):

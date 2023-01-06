@@ -1,7 +1,7 @@
 from typing import BinaryIO
 from enum import Enum
 
-from .utils import read_uint32, read_unicode_string, read_rectangle_uint32, read_uchar, read_double
+from pypsd.utils import read_uint32, read_unicode_string, read_rectangle_uint32, read_uchar, read_double
 
 
 def read_4_or_string(buf: BinaryIO):

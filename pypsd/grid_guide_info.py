@@ -1,7 +1,7 @@
 from enum import IntEnum
 from typing import BinaryIO
 
-from .utils import read_uint32, read_uchar
+from pypsd.utils import read_uint32, read_uchar
 
 
 class VHSelect(IntEnum):

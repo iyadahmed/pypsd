@@ -1,19 +1,19 @@
 from io import BytesIO
 from typing import BinaryIO
 
-from .color import read_color
-from .color_mode import _read_color_mode_data
-from .exif import read_exif_data_1_resource
-from .grid_guide_info import read_guide_resource_block
-from .header import _read_header
-from .print_scale import read_print_scale
-from .resolution_info import read_resolution_info
-from .resource_blocks import iter_resource_blocks
-from .resource_ids import ResourceID
-from .slices import read_slices, read_descriptor_structure
-from .thumbnail import read_thumbnail_resource
-from .path import read_path_resource_block
-from .utils import read_uint32, read_uint16, read_uchar, read_unicode_string, read_double
+from pypsd.color import read_color
+from pypsd.color_mode import _read_color_mode_data
+from pypsd.exif import read_exif_data_1_resource
+from pypsd.grid_guide_info import read_guide_resource_block
+from pypsd.header import _read_header
+from pypsd.print_scale import read_print_scale
+from pypsd.resolution_info import read_resolution_info
+from pypsd.resource_blocks import iter_resource_blocks
+from pypsd.resource_ids import ResourceID
+from pypsd.slices import read_slices, read_descriptor_structure
+from pypsd.thumbnail import read_thumbnail_resource
+from pypsd.path import read_path_resource_block
+from pypsd.utils import read_uint32, read_uint16, read_uchar, read_unicode_string, read_double
 
 
 def read_caption_digest(buf: BinaryIO):

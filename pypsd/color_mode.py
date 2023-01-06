@@ -1,7 +1,7 @@
 from enum import IntEnum
 from typing import BinaryIO
 
-from .utils import read_uint32
+from pypsd.utils import read_uint32
 
 INDEXED_COLOR_DATA_LENGTH = 768
 
