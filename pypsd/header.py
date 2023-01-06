@@ -25,6 +25,7 @@ def _read_header(buffer: BinaryIO):
     assert version == 1
 
     _reserved = buffer.read(6)
+    assert len(_reserved) == 6
     assert all(c == 0 for c in _reserved)
 
     num_channels = read_int16(buffer)
