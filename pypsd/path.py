@@ -45,7 +45,7 @@ def read_path_resource_block(buf: BinaryIO):
     assert first_record_type == PathDataRecordType.PATH_FILL_RULE
     first_record_data = buf.read(24)
     assert len(first_record_data) == 24
-    assert all(v == 0 for v in first_record_data)
+    assert all(c == 0 for c in first_record_data)
 
     for _ in range(num_records - 1):
         record_type = PathDataRecordType(read_uint16(buf))
