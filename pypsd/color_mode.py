@@ -23,7 +23,8 @@ def _read_color_mode_data(buffer: BinaryIO, color_mode: ColorMode):
         assert color_data_length == INDEXED_COLOR_DATA_LENGTH
         indexed_color_table = buffer.read(INDEXED_COLOR_DATA_LENGTH)
         # TODO: de-interleave and store indexed color table
-        # it seems that color table is 256 RGB, non-interleaved, so 256 red values, followed by 256 green, followed by 256 blue bytes
+        # it seems that color table is 256 RGB, non-interleaved,
+        # so 256 red values, followed by 256 green, followed by 256 blue bytes
         # TIP: use strides :)
     elif color_mode == ColorMode.Duotone:
         # undocumented
