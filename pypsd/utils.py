@@ -68,9 +68,14 @@ def read_uchar(buffer: BinaryIO):
 
 def read_pascal_string(buffer: BinaryIO):
     string_length = buffer.read(1)[0]
-    if string_length == 0:
-        buffer.read(1)[0]
-        return b""
+    string_length += 1  # Include the byte we have just read when calculating padded length
+
+    # Calculate padded length, we pad the length of total bytes to be even
+    if (string_length % 2) == 1:
+        string_length += 1
+
+    # Remove the byte we have read because we need to read the rest
+    string_length -= 1
     return buffer.read(string_length)
 
 

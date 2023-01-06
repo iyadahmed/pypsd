@@ -25,12 +25,6 @@ def iter_resource_blocks(buffer: BinaryIO):
             break
 
         assert image_resource_block_signature == b"8BIM"
-        # FIXME: assertion error on some PSDs
-        #       maybe pascal string reading has a bug and resources section data size for those is wrong?
-        #       because there are still 8BIM after assertion,
-        #       (you can check using image_resources_section_buf.find(b"8BIM")).
-        # TODO: print names and check if padding pascal strings to even bytes solves it.
-        #       yet that's it fix it
 
         rid_num = read_uint16(image_resources_section_buf)
         name = read_pascal_string(image_resources_section_buf)
