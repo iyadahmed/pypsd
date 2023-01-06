@@ -35,6 +35,10 @@ def read_print_style(buf: BinaryIO):
     read_descriptor_with_version_check(buf)
 
 
+def read_origin_path_info(buf: BinaryIO):
+    read_descriptor_with_version_check(buf)
+
+
 def read_xmp_metadata(buf: BinaryIO):
     buf.read()  # File info in XML format
 
@@ -245,6 +249,9 @@ def read_psd(filepath: str):
 
             elif rblock.rid == ResourceID.WORKING_PATH:
                 read_path_resource_block(buf)
+
+            elif rblock.rid == ResourceID.PSCC_ORIGIN_PATH_INFO:
+                read_origin_path_info(buf)
 
             else:
                 raise NotImplementedError(repr(rblock.rid))
