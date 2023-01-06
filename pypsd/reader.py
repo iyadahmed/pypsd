@@ -143,6 +143,10 @@ def read_alpha_identifiers(buf: BinaryIO):
         identifier = buf.read(4)
 
 
+def read_icc_untagged_profile(buf: BinaryIO):
+    is_intentionally_untagged = buf.read(1)[0]
+
+
 def read_psd(filepath: str):
     with open(filepath, "rb") as file:
 
@@ -252,6 +256,9 @@ def read_psd(filepath: str):
 
             elif rblock.rid == ResourceID.PSCC_ORIGIN_PATH_INFO:
                 read_origin_path_info(buf)
+
+            elif rblock.rid == ResourceID.PS5_ICC_UNTAGGED_PROFILE:
+                read_icc_untagged_profile(buf)
 
             else:
                 raise NotImplementedError(repr(rblock.rid))
