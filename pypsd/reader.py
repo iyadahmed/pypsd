@@ -39,6 +39,10 @@ def read_origin_path_info(buf: BinaryIO):
     read_descriptor_with_version_check(buf)
 
 
+def read_layer_comps(buf: BinaryIO):
+    read_descriptor_with_version_check(buf)
+
+
 def read_xmp_metadata(buf: BinaryIO):
     buf.read()  # File info in XML format
 
@@ -259,6 +263,9 @@ def read_psd(filepath: str):
 
             elif rblock.rid == ResourceID.PS5_ICC_UNTAGGED_PROFILE:
                 read_icc_untagged_profile(buf)
+
+            elif rblock.rid == ResourceID.PSCS_LAYER_COMPS:
+                read_layer_comps(buf)
 
             else:
                 raise NotImplementedError(repr(rblock.rid))
