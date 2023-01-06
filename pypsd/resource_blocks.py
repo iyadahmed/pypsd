@@ -49,10 +49,8 @@ def iter_resource_blocks(buffer: BinaryIO):
 
         if is_path_resource(rid_num):
             read_path_resource_block(BytesIO(data))
-
-        if is_plugin_resource(rid_num):
-            continue
-
-        rid = ResourceID(rid_num)
-
-        yield ResourceBlock(rid, name, data)
+        elif is_plugin_resource(rid_num):
+            pass
+        else:
+            rid = ResourceID(rid_num)
+            yield ResourceBlock(rid, name, data)
