@@ -4,6 +4,7 @@ from typing import BinaryIO
 
 from pypsd.layer_mask_info_reader.blend_mode_key import BlendModeKey
 from pypsd.layer_mask_info_reader.layer_mask_data import _read_layer_mask_data
+from pypsd.layer_mask_info_reader.layer_blending_ranges import _read_layer_blending_ranges_data
 from pypsd.utils import read_uint32, read_int16, read_rectangle_uint32, read_uint16, read_uchar
 
 
@@ -42,4 +43,5 @@ def _read_layer_record(buf: BinaryIO):
     extra_data_buf = BytesIO(buf.read(extra_data_length))
 
     _read_layer_mask_data(extra_data_buf)
-    # TODO: read layer blending ranges and layer name
+    _read_layer_blending_ranges_data(extra_data_buf)
+    # TODO: read layer name
