@@ -15,5 +15,5 @@ def read_layer_mask_info(buf: BinaryIO):
 
     section_buf = BytesIO(section_data)
     _read_layer_info(section_buf)
-    # TODO: "Global layer mask info"
+    read_global_layer_mask_info(section_buf)
     # TODO: "Tagged blocks"
