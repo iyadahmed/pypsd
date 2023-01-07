@@ -71,7 +71,6 @@ def _read_extra_data(buf: BinaryIO):
     _read_layer_mask_data(buf)
     _read_layer_blending_ranges_data(buf)
     layer_name = _read_pascal_string_pad4(buf)
-    print(layer_name)
     # TODO: read "Additional Layer Information" structure
     additional_layer_info_data = buf.read()
     return ExtraLayerData(layer_name)
