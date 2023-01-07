@@ -35,6 +35,7 @@ class ChannelID(IntEnum):
 
 @dataclass
 class ChannelInfo:
+    cid: ChannelID
     data_length: int
 
 
@@ -89,7 +90,7 @@ def _read_layer_record(buf: BinaryIO):
     for _ in range(channel_count):
         channel_id = ChannelID(read_int16(buf))
         channel_data_length = read_uint32(buf)
-        channels_info.append(ChannelInfo(channel_data_length))
+        channels_info.append(ChannelInfo(channel_id, channel_data_length))
 
     blend_mode_signature = buf.read(4)
     assert blend_mode_signature == b"8BIM"
