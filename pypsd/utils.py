@@ -40,6 +40,12 @@ def read_uint32(buffer: BinaryIO):
     return int.from_bytes(data, "big", signed=False)
 
 
+def read_int32(buffer: BinaryIO):
+    data = buffer.read(4)
+    assert len(data) == 4
+    return int.from_bytes(data, "big", signed=True)
+
+
 def read_int16(buffer: BinaryIO):
     data = buffer.read(2)
     assert len(data) == 2
