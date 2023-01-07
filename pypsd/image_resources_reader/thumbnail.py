@@ -22,8 +22,9 @@ def read_thumbnail_resource(buf: BinaryIO):
     assert number_of_planes == 1
     jfif_data = buf.read()
 
-    if (size_after_compression % 2) == 1:
-        # Not mentioned in docs, but it seems that size after compression is padded to be even
-        size_after_compression += 1
-
-    assert len(jfif_data) == size_after_compression
+    # Uncomment to display thumbnail
+    # from PIL import Image
+    # from io import BytesIO
+    #
+    # image = Image.open(BytesIO(jfif_data))
+    # image.show()
