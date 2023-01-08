@@ -42,6 +42,7 @@ def iter_resource_blocks(buffer: BinaryIO):
         # assert b"8BIM" not in data
 
         if is_path_resource(rid_num):
+            # TODO: move this read operation out
             read_path_resource_block(BytesIO(data))
         elif is_plugin_resource(rid_num):
             pass
