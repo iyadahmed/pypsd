@@ -26,7 +26,7 @@ def iter_resource_blocks(buffer: BinaryIO):
             break
 
         if image_resource_block_signature != b"8BIM":
-            print("Warning: Image Resource Block Signature Mismatch", file=sys.stderr)
+            print("Warning: Image resource block signature mismatch", file=sys.stderr)
             return
 
         rid_num = read_uint16(image_resources_section_buf)
