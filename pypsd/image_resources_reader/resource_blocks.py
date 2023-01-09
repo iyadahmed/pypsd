@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import BinaryIO
 from io import BytesIO
+import sys
 
 from pypsd.utils import read_uint32, read_uint16, read_pascal_string
 from pypsd.image_resources_reader.resource_ids import ResourceID, is_path_resource, is_plugin_resource
@@ -24,7 +25,9 @@ def iter_resource_blocks(buffer: BinaryIO):
         if len(image_resource_block_signature) == 0:
             break
 
-        assert image_resource_block_signature == b"8BIM"
+        if image_resource_block_signature != b"8BIM":
+            print("Warning: Image Resource Block Signature Mismatch", file=sys.stderr)
+            return
 
         rid_num = read_uint16(image_resources_section_buf)
         name = read_pascal_string(image_resources_section_buf)
