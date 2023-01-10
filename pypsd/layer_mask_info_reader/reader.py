@@ -17,3 +17,4 @@ def read_layer_mask_info(buf: BinaryIO):
     _read_layer_info(section_buf)
     read_global_layer_mask_info(section_buf)
     # TODO: "Tagged blocks"
+    assert section_buf.read(4) == b"8BIM"
