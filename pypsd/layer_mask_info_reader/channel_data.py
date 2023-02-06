@@ -15,13 +15,6 @@ class CompressionType(IntEnum):
     ZIP_PREDICT = 3
 
 
-# TODO: move read_char to utils.py
-def read_char(buf: BinaryIO) -> int:
-    c = buf.read(1)
-    assert len(c) == 1
-    return signed_char_reader.unpack(c)[0]
-
-
 def uncompress_rle(buf: BinaryIO):
     # TODO: use byte array to fix slow concatenation of data
     uncompressed_data = b""
