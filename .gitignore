@@ -1,2 +1,5 @@
-/venv/
+/env/
 /.idea/
+__pycache__
+/test_files/
+/.vscode/
