@@ -77,6 +77,9 @@ def _read_channel_data(buf: BinaryIO, layer_rect: Rectangle):
 
     else:
         raise NotImplementedError(compression_type)
+    
+    # NOTE: in rare cases, data length can be not enough to construct image
+    # (len(data) != width * height)
 
     # Uncomment to display image
     # from PIL import Image
