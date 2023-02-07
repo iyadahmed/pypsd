@@ -1,6 +1,6 @@
 from enum import IntEnum
 from struct import Struct
-from typing import BinaryIO
+from typing import BinaryIO, List
 from io import BytesIO
 
 from pypsd.utils import read_uint16, Rectangle, read_int16
@@ -15,9 +15,8 @@ class CompressionType(IntEnum):
     ZIP_PREDICT = 3
 
 
-def uncompress_rle(buf: BinaryIO):
-    # TODO: use byte array to fix slow concatenation of data
-    uncompressed_data = b""
+def uncompress_rle(buf: BinaryIO) -> List[int]:
+    uncompressed_data = []
     while True:
         c = buf.read(1)
         if len(c) == 0:
@@ -60,8 +59,7 @@ def read_channel_data(buf: BinaryIO, layer_rect: Rectangle):
         for _ in range(num_scan_lines):
             byte_counts.append(read_uint16(buf))
 
-        # TODO: use byte array to fix slow concatenation of data
-        data = b""
+        data = []
         for n in byte_counts:
             compressed_row = BytesIO(buf.read(n))
             data += uncompress_rle(compressed_row)
@@ -77,5 +75,5 @@ def read_channel_data(buf: BinaryIO, layer_rect: Rectangle):
     # Uncomment to display image
     # from PIL import Image
 
-    # im = Image.frombytes("L", (width, height), data)
+    # im = Image.frombytes("L", (width, height), bytes(data))
     # im.show()
