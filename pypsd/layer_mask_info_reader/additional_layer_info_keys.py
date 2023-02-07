@@ -132,6 +132,7 @@ class AdditionalLayerKey(Enum):
     LINKED_LAYER_1 = b"lnkD"
     LINKED_LAYER_2 = b"lnk2"
     LINKED_LAYER_3 = b"lnk3"
+    LINKED_LAYER_4 = b"lnkE"
 
     # Photo Filter
     PHOTO_FILTER = b"phfl"
