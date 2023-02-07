@@ -3,7 +3,7 @@ from typing import BinaryIO
 from pypsd.utils import read_uint32, read_uchar
 
 
-def _read_range(buf: BinaryIO):
+def read_range(buf: BinaryIO):
     b1 = read_uchar(buf)
     b2 = read_uchar(buf)
     w1 = read_uchar(buf)
@@ -11,7 +11,7 @@ def _read_range(buf: BinaryIO):
     return (b1, b2), (w1, w2)
 
 
-def _read_layer_blending_ranges_data(buf: BinaryIO):
+def read_layer_blending_ranges_data(buf: BinaryIO):
     length = read_uint32(buf)
     assert len(buf.read(length)) == length
     # TODO: read layer blending ranges correctly

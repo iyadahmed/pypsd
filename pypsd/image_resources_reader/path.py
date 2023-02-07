@@ -18,19 +18,19 @@ class PathDataRecordType(IntEnum):
     INITIAL_FILL_RULE = 8
 
 
-def _read_control_point_component(buf: BinaryIO):
+def read_control_point_component(buf: BinaryIO):
     value = read_uint32(buf)
     # TODO: parse fixed point number
     return value
 
 
-def _read_control_point(buf: BinaryIO):
-    y = _read_control_point_component(buf)
-    x = _read_control_point_component(buf)
+def read_control_point(buf: BinaryIO):
+    y = read_control_point_component(buf)
+    x = read_control_point_component(buf)
     return x, y
 
 
-def _read_path_record(buf: BinaryIO, record_type: PathDataRecordType):
+def read_path_record(buf: BinaryIO, record_type: PathDataRecordType):
     if record_type in (PathDataRecordType.OPEN_LENGTH, PathDataRecordType.CLOSED_LENGTH):
         num_bezier_knot_records = read_uint16(buf)
         assert len(buf.read(22)) == 22
@@ -39,9 +39,9 @@ def _read_path_record(buf: BinaryIO, record_type: PathDataRecordType):
     elif record_type in (PathDataRecordType.OPEN_LINKED_KNOT, PathDataRecordType.OPEN_UNLINKED_KNOT,
                          PathDataRecordType.CLOSED_LINKED_KNOT, PathDataRecordType.CLOSED_UNLINKED_KNOT):
         # TODO: when storing these knots, also store their state (open/closed, linked/unlinked, etc)
-        preceding = _read_control_point(buf)
-        anchor = _read_control_point(buf)
-        leaving = _read_control_point(buf)
+        preceding = read_control_point(buf)
+        anchor = read_control_point(buf)
+        leaving = read_control_point(buf)
     else:
         buf.read(24)
         # raise NotImplementedError(record_type)
@@ -65,4 +65,4 @@ def read_path_resource_block(buf: BinaryIO):
         if len(record_bytes) == 0:
             return
         assert len(record_bytes) == 24
-        _read_path_record(BytesIO(record_bytes), record_type)
+        read_path_record(BytesIO(record_bytes), record_type)

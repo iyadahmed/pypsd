@@ -17,7 +17,7 @@ class ColorMode(IntEnum):
     Lab = 9
 
 
-def _read_color_mode_data(buffer: BinaryIO, color_mode: ColorMode):
+def read_color_mode_data(buffer: BinaryIO, color_mode: ColorMode):
     color_data_length = read_uint32(buffer)
     if color_mode == ColorMode.Indexed:
         assert color_data_length == INDEXED_COLOR_DATA_LENGTH

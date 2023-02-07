@@ -11,7 +11,7 @@ class GlobalLayerKind(IntEnum):
     VALUE_PER_LAYER = 128
 
 
-def _read_global_layer_mask_info_inner(buf: BinaryIO):
+def read_global_layer_mask_info_inner(buf: BinaryIO):
     # "Overlay color space" (undocumented)
     assert len(buf.read(2)) == 2
 
@@ -28,4 +28,4 @@ def read_global_layer_mask_info(buf: BinaryIO):
         return
     section_data = buf.read(section_length)
     assert len(section_data) == section_length
-    _read_global_layer_mask_info_inner(BytesIO(section_data))
+    read_global_layer_mask_info_inner(BytesIO(section_data))

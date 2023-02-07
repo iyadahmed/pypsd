@@ -23,7 +23,7 @@ class MaskParametersFlag(IntFlag):
     VECTOR_FEATHER = auto()
 
 
-def _read_layer_mask_data(buf: BinaryIO):
+def read_layer_mask_data(buf: BinaryIO):
     size = read_uint32(buf)
     if size == 0:
         return

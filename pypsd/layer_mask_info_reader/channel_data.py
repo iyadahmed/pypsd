@@ -34,7 +34,7 @@ def uncompress_rle(buf: BinaryIO):
     return uncompressed_data
 
 
-def _read_channel_data(buf: BinaryIO, layer_rect: Rectangle):
+def read_channel_data(buf: BinaryIO, layer_rect: Rectangle):
     compression_type = CompressionType(read_int16(buf))
 
     width = layer_rect.right - layer_rect.left

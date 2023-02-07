@@ -16,7 +16,7 @@ class Header:
     color_mode: ColorMode
 
 
-def _read_header(buffer: BinaryIO):
+def read_header(buffer: BinaryIO):
     # TODO: move asserts to dataclass __post_init__?
     signature = buffer.read(4)
     assert signature == b"8BPS"
