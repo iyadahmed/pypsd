@@ -3,7 +3,7 @@ from typing import BinaryIO
 
 from pypsd.layer_mask_info_reader.layer_info import read_layer_info
 from pypsd.layer_mask_info_reader.global_layer_mask import read_global_layer_mask_info
-from pypsd.layer_mask_info_reader.additional_layer_info import read_additional_layer_info
+from pypsd.layer_mask_info_reader.additional_layer_info.reader import read_additional_layer_info
 from pypsd.utils import read_uint32
 
 
