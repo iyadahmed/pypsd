@@ -1,7 +1,7 @@
 from enum import IntFlag, auto
 from typing import BinaryIO
 
-from pypsd.utils import read_rectangle_uint32, read_uint32, read_uchar, read_double
+from pypsd.utils import read_double, read_rectangle_uint32, read_uchar, read_uint32
 
 
 class LayerMaskDataFlag(IntFlag):
@@ -38,7 +38,8 @@ def read_layer_mask_data(buf: BinaryIO):
         if (mask_parameters & MaskParametersFlag.USER_DENSITY) or (mask_parameters & MaskParametersFlag.VECTOR_DENSITY):
             density = read_uchar(buf)
         elif (mask_parameters & MaskParametersFlag.USER_FEATHER) or (
-                mask_parameters & MaskParametersFlag.VECTOR_FEATHER):
+            mask_parameters & MaskParametersFlag.VECTOR_FEATHER
+        ):
             feather = read_double(buf)
         else:
             raise NotImplementedError

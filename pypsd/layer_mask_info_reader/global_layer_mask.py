@@ -2,7 +2,7 @@ from enum import IntEnum
 from io import BytesIO
 from typing import BinaryIO
 
-from pypsd.utils import read_uint32, read_uint16, read_uchar
+from pypsd.utils import read_uchar, read_uint16, read_uint32
 
 
 class GlobalLayerKind(IntEnum):

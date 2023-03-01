@@ -1,5 +1,5 @@
-from typing import BinaryIO
 from dataclasses import dataclass
+from typing import BinaryIO
 
 from pypsd.color_mode import ColorMode
 from pypsd.utils import read_int16, read_uint16, read_uint32

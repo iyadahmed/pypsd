@@ -2,8 +2,8 @@ from io import BytesIO
 from typing import BinaryIO
 
 from pypsd.layer_mask_info_reader.channel_data import read_channel_data
-from pypsd.layer_mask_info_reader.layer_record import read_layer_record, LayerRecord
-from pypsd.utils import read_uint32, read_int16
+from pypsd.layer_mask_info_reader.layer_record import LayerRecord, read_layer_record
+from pypsd.utils import read_int16, read_uint32
 
 
 def read_layer_record_channels(buf: BinaryIO, layer_record: LayerRecord):
@@ -25,7 +25,7 @@ def read_n_layer_records(buf: BinaryIO, n: int):
 
 def read_layer_info_section(buf: BinaryIO):
     layer_count = read_int16(buf)
-    first_alpha_contains_merged_transparency = (layer_count < 0)
+    first_alpha_contains_merged_transparency = layer_count < 0
     layer_count = abs(layer_count)
     layer_records = read_n_layer_records(buf, layer_count)
     for lr in layer_records:

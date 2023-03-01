@@ -6,7 +6,7 @@ from typing import BinaryIO, List
 from pypsd.layer_mask_info_reader.blend_mode_key import BlendModeKey
 from pypsd.layer_mask_info_reader.layer_blending_ranges import read_layer_blending_ranges_data
 from pypsd.layer_mask_info_reader.layer_mask_data import read_layer_mask_data
-from pypsd.utils import read_uint32, read_int16, read_rectangle_uint32, read_uint16, read_uchar, Rectangle, read_int32
+from pypsd.utils import Rectangle, read_int16, read_int32, read_rectangle_uint32, read_uchar, read_uint16, read_uint32
 
 
 class ClippingType(IntEnum):

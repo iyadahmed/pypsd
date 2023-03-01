@@ -1,11 +1,11 @@
-from dataclasses import dataclass
-from typing import BinaryIO
-from io import BytesIO
 import sys
+from dataclasses import dataclass
+from io import BytesIO
+from typing import BinaryIO
 
-from pypsd.utils import read_uint32, read_uint16, read_pascal_string
-from pypsd.image_resources_reader.resource_ids import ResourceID, is_path_resource, is_plugin_resource
 from pypsd.image_resources_reader.path import read_path_resource_block
+from pypsd.image_resources_reader.resource_ids import ResourceID, is_path_resource, is_plugin_resource
+from pypsd.utils import read_pascal_string, read_uint16, read_uint32
 
 
 @dataclass

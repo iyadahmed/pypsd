@@ -36,8 +36,12 @@ def read_path_record(buf: BinaryIO, record_type: PathDataRecordType):
         assert len(buf.read(22)) == 22
         # NOTE: PSD documentation states that those 22 bytes should be all zeros
         # but some files do not adhere
-    elif record_type in (PathDataRecordType.OPEN_LINKED_KNOT, PathDataRecordType.OPEN_UNLINKED_KNOT,
-                         PathDataRecordType.CLOSED_LINKED_KNOT, PathDataRecordType.CLOSED_UNLINKED_KNOT):
+    elif record_type in (
+        PathDataRecordType.OPEN_LINKED_KNOT,
+        PathDataRecordType.OPEN_UNLINKED_KNOT,
+        PathDataRecordType.CLOSED_LINKED_KNOT,
+        PathDataRecordType.CLOSED_UNLINKED_KNOT,
+    ):
         # TODO: when storing these knots, also store their state (open/closed, linked/unlinked, etc)
         preceding = read_control_point(buf)
         anchor = read_control_point(buf)

@@ -7,11 +7,11 @@ from pypsd.image_resources_reader.grid_guide_info import read_guide_resource_blo
 from pypsd.image_resources_reader.path import read_path_resource_block
 from pypsd.image_resources_reader.print_scale import read_print_scale
 from pypsd.image_resources_reader.resolution_info import read_resolution_info
-from pypsd.image_resources_reader.resource_blocks import iter_resource_blocks, ResourceBlock
+from pypsd.image_resources_reader.resource_blocks import ResourceBlock, iter_resource_blocks
 from pypsd.image_resources_reader.resource_ids import ResourceID
-from pypsd.image_resources_reader.slices import read_slices, read_descriptor_structure
+from pypsd.image_resources_reader.slices import read_descriptor_structure, read_slices
 from pypsd.image_resources_reader.thumbnail import read_thumbnail_resource
-from pypsd.utils import read_uint32, read_uint16, read_uchar, read_unicode_string, read_double
+from pypsd.utils import read_double, read_uchar, read_uint16, read_uint32, read_unicode_string
 
 
 def read_caption_digest(buf: BinaryIO):
@@ -84,7 +84,7 @@ def read_layers_group_info(buf: BinaryIO):
     num_bytes = len(groups_ids_bytes)
     assert (num_bytes % 2) == 0
     for i in range(0, num_bytes, 2):
-        gid = int.from_bytes(groups_ids_bytes[i: i + 2], "big", signed=False)
+        gid = int.from_bytes(groups_ids_bytes[i : i + 2], "big", signed=False)
 
 
 def read_layer_groups_enabled_id(buf: BinaryIO):

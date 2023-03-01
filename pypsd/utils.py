@@ -1,6 +1,6 @@
 from dataclasses import dataclass
-from typing import BinaryIO
 from struct import Struct
+from typing import BinaryIO
 
 float_reader = Struct(">f")
 double_reader = Struct(">d")

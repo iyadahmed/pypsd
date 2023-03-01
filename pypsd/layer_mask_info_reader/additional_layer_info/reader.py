@@ -1,12 +1,12 @@
-from typing import BinaryIO
 from io import BytesIO
+from typing import BinaryIO
 
+from pypsd.layer_mask_info_reader.additional_layer_info.filter_mask import read_filter_mask
 from pypsd.layer_mask_info_reader.additional_layer_info.keys import AdditionalLayerKey
-from pypsd.utils import read_uint32, read_int32
 from pypsd.layer_mask_info_reader.additional_layer_info.pattern import read_pattern
 from pypsd.layer_mask_info_reader.additional_layer_info.text_engine_data import read_text_engine_data
-from pypsd.layer_mask_info_reader.additional_layer_info.filter_mask import read_filter_mask
 from pypsd.layer_mask_info_reader.additional_layer_info.unicode_path_name import read_unicode_path_name
+from pypsd.utils import read_int32, read_uint32
 
 
 def read_additional_layer_info_block(buf: BinaryIO, key: AdditionalLayerKey):

@@ -1,9 +1,9 @@
 from enum import IntEnum
+from io import BytesIO
 from struct import Struct
 from typing import BinaryIO, List
-from io import BytesIO
 
-from pypsd.utils import read_uint16, Rectangle, read_int16
+from pypsd.utils import Rectangle, read_int16, read_uint16
 
 signed_char_reader = Struct("b")
 

@@ -1,7 +1,7 @@
 from enum import IntEnum
 from typing import BinaryIO
 
-from pypsd.utils import read_uint32, read_uint16
+from pypsd.utils import read_uint16, read_uint32
 
 
 class ThumbnailFormat(IntEnum):
