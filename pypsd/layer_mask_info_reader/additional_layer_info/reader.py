@@ -4,11 +4,23 @@ from io import BytesIO
 from pypsd.layer_mask_info_reader.additional_layer_info.keys import AdditionalLayerKey
 from pypsd.utils import read_uint32, read_int32
 from pypsd.layer_mask_info_reader.additional_layer_info.pattern import read_pattern
+from pypsd.layer_mask_info_reader.additional_layer_info.text_engine_data import read_text_engine_data
+from pypsd.layer_mask_info_reader.additional_layer_info.filter_mask import read_filter_mask
+from pypsd.layer_mask_info_reader.additional_layer_info.unicode_path_name import read_unicode_path_name
 
 
 def read_additional_layer_info_block(buf: BinaryIO, key: AdditionalLayerKey):
     if key == AdditionalLayerKey.PATTERN_1:
         read_pattern(buf)
+
+    elif key == AdditionalLayerKey.TEXT_ENGINE_DATA:
+        read_text_engine_data(buf)
+
+    elif key == AdditionalLayerKey.FILTER_MASK:
+        read_filter_mask(buf)
+
+    elif key == AdditionalLayerKey.UNICODE_PATH_NAME:
+        read_unicode_path_name(buf)
 
     else:
         raise NotImplementedError(key)
