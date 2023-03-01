@@ -45,9 +45,7 @@ def read_channel_data(buf: BinaryIO, layer_rect: Rectangle):
         assert (size % 2) == 0
         data = buf.read(size)
         assert len(data) == size
-        assert (
-            len(buf.read()) == 0
-        )  # Assert that all data was read (no more remaining data)
+        assert len(buf.read()) == 0  # Assert that all data was read (no more remaining data)
 
     elif compression_type == CompressionType.RLE:
         num_scan_lines = layer_rect.bottom - layer_rect.top
