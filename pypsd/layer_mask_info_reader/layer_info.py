@@ -25,7 +25,7 @@ def read_n_layer_records(buf: BinaryIO, n: int):
 
 def read_layer_info_section(buf: BinaryIO):
     layer_count = read_int16(buf)
-    first_alpha_contains_merged_transparency = layer_count < 0
+    does_first_alpha_channel_contain_merged_transparency = layer_count < 0
     layer_count = abs(layer_count)
     layer_records = read_n_layer_records(buf, layer_count)
     for lr in layer_records:
