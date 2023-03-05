@@ -19,11 +19,7 @@ class CompressionType(IntEnum):
 def uncompress_rle(buf: memoryview) -> List[int]:
     uncompressed_data = []
     buf_iter = iter(buf)
-    while True:
-        c = next(buf_iter, None)
-        if c is None:
-            break
-
+    for c in buf_iter:
         n = (c - 256) if c > 127 else c
 
         if 0 <= n <= 127:
