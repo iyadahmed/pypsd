@@ -1,5 +1,6 @@
 from enum import IntEnum
 from io import BytesIO
+from itertools import islice, repeat
 from struct import Struct
 from typing import BinaryIO, List
 
@@ -15,20 +16,21 @@ class CompressionType(IntEnum):
     ZIP_PREDICT = 3
 
 
-def uncompress_rle(buf: BinaryIO) -> List[int]:
+def uncompress_rle(buf: memoryview) -> List[int]:
     uncompressed_data = []
+    buf_iter = iter(buf)
     while True:
-        c = buf.read(1)
-        if len(c) == 0:
+        c = next(buf_iter, None)
+        if c is None:
             break
 
-        n = signed_char_reader.unpack(c)[0]
+        n = (c - 256) if c > 127 else c
 
         if 0 <= n <= 127:
-            uncompressed_data += buf.read(1 + n)
+            uncompressed_data += islice(buf_iter, 1 + n)
 
         elif -127 <= n <= -1:
-            uncompressed_data += buf.read(1) * (1 - n)
+            uncompressed_data += repeat(next(buf_iter), 1 - n)
 
     return uncompressed_data
 
@@ -59,8 +61,8 @@ def read_channel_data(buf: BinaryIO, layer_rect: Rectangle):
 
         data = []
         for n in byte_counts:
-            compressed_row = BytesIO(buf.read(n))
-            data += uncompress_rle(compressed_row)
+            compressed_row = buf.read(n)
+            data += uncompress_rle(memoryview(compressed_row))
 
         assert len(buf.read()) == 0
 
