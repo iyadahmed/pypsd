@@ -6,8 +6,6 @@ from typing import BinaryIO, List
 
 from pypsd.utils import Rectangle, read_int16, read_uint16
 
-signed_char_reader = Struct("b")
-
 
 class CompressionType(IntEnum):
     RAW = 0
