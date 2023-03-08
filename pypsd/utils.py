@@ -15,6 +15,12 @@ class Rectangle:
     bottom: int
     right: int
 
+    def width(self):
+        return self.right - self.left
+
+    def height(self):
+        return self.bottom - self.top
+
 
 def read_float(buffer: BinaryIO):
     data = buffer.read(4)

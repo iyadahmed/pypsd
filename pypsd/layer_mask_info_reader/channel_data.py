@@ -45,23 +45,22 @@ def read_channel_data(buf: BinaryIO, layer_rect: Rectangle):
 
     elif compression_type == CompressionType.RLE:
         num_scan_lines = layer_rect.bottom - layer_rect.top
-        if num_scan_lines == 0:
-            return
-        assert num_scan_lines > 0, (num_scan_lines, layer_rect.bottom, layer_rect.top)
-
-        byte_counts = []
-        for _ in range(num_scan_lines):
-            byte_counts.append(read_uint16(buf))
-
         data = []
-        for n in byte_counts:
-            compressed_row = buf.read(n)
-            data += uncompress_rle(memoryview(compressed_row))
+        if num_scan_lines > 0:
+            byte_counts = []
+            for _ in range(num_scan_lines):
+                byte_counts.append(read_uint16(buf))
 
-        assert len(buf.read()) == 0
+            for n in byte_counts:
+                compressed_row = buf.read(n)
+                data += uncompress_rle(memoryview(compressed_row))
+
+            assert len(buf.read()) == 0
 
     else:
         raise NotImplementedError(compression_type)
+
+    return bytes(data)
 
     # NOTE: in rare cases, data length can be not enough to construct image
     # (len(data) != width * height)
